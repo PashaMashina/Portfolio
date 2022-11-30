@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="todo">TODO</string>
+    <string-array name="assets">
+        <item>Нет выбора</item>
+        <item>Валюта</item>
+        <item>Криптовалюта</item>
+        <item>Акция</item>
+    </string-array>
+</resources>
