@@ -26,6 +26,8 @@ import com.example.myapplication.db.MyDBHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Locale;
+
 public class AddActivityNext extends AppCompatActivity {
 
     private ProgressBar progressBar;
@@ -34,33 +36,36 @@ public class AddActivityNext extends AppCompatActivity {
     private EditText edAmount;
     private Button btnAdd;
     private RequestQueue requestQueue;
-    private double priceNowUsd;
-    private double priceNow;
+    private static double priceNowUsd;
+    private static double priceNow;
+    private boolean addOrUpd = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_next);
 
+        progressBar = findViewById(R.id.progressBar);
+        progressBar.animate();
+        progressBar.setVisibility(View.INVISIBLE);
         requestQueue = Volley.newRequestQueue(this);
         edTitle = findViewById(R.id.edTitle);
         edAmount = findViewById(R.id.edAmount);
         btnAdd = findViewById(R.id.btnAdd);
 
-        doRequestToApi("USD", WhichUrl.learnUrl("USD", null));
+        doRequestToApi("USD", WhichUrl.learnUrl("USD", null), addOrUpd);
 
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                progressBar.setVisibility(View.VISIBLE);
                 String str = edAmount.getText().toString();
                 amount = Double.parseDouble(str);
-                doRequestToApi(AddActivity.selected, WhichUrl.learnUrl(AddActivity.selected, edTitle.getText().toString().trim()));
-                progressBar = findViewById(R.id.progressBar);
-                progressBar.animate();
+                doRequestToApi(AddActivity.selected, WhichUrl.learnUrl(AddActivity.selected, edTitle.getText().toString().trim()), addOrUpd);
             }
         });
     }
-    private void doRequestToApi(String type, String urlAsset) {
+    public void doRequestToApi(String type, String urlAsset, boolean addOrUpd) {
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, urlAsset, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -90,26 +95,7 @@ public class AddActivityNext extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                if(type != "USD" && status) {
-                    MyDBHelper myDB = new MyDBHelper(AddActivityNext.this);
-                    myDB.addAsset(edTitle.getText().toString().trim(), Math.round(priceNow * 100.0) / 100.0, amount, AddActivity.selected);
-                    progressBar.setVisibility(View.INVISIBLE);
-                    Intent intent = new Intent(AddActivityNext.this, MainActivity.class);
-                    startActivity(intent);
-                }else if(type != "USD"){
-                    progressBar.setVisibility(View.INVISIBLE);
-                    LayoutInflater inflater = getLayoutInflater();
-                    View layout = inflater.inflate(R.layout.custom_toast, findViewById(R.id.customToast));
-
-                    TextView text = layout.findViewById(R.id.text);
-                    text.setText("Актив не найден(");
-
-                    Toast toast = new Toast(getApplicationContext());
-                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                    toast.setDuration(Toast.LENGTH_SHORT);
-                    toast.setView(layout);
-                    toast.show();
-                }
+                    addBD(type, status);
             }
         }, new Response.ErrorListener() {
             @Override
@@ -118,5 +104,32 @@ public class AddActivityNext extends AppCompatActivity {
             }
         });
         requestQueue.add(request);
+    }
+
+    public void addBD(String type, boolean status){
+        if(type != "USD" && status) {
+            MyDBHelper myDB = new MyDBHelper(AddActivityNext.this);
+            myDB.addAsset(edTitle.getText().toString().trim().toUpperCase(), Math.round(priceNow * 100.0) / 100.0, amount, AddActivity.selected);
+            progressBar.setVisibility(View.INVISIBLE);
+            Intent intent = new Intent(AddActivityNext.this, MainActivity.class);
+            startActivity(intent);
+        }else if(type != "USD"){
+            progressBar.setVisibility(View.INVISIBLE);
+            LayoutInflater inflater = getLayoutInflater();
+            View layout = inflater.inflate(R.layout.custom_toast, findViewById(R.id.customToast));
+
+            TextView text = layout.findViewById(R.id.text);
+            text.setText("Актив не найден(");
+
+            Toast toast = new Toast(getApplicationContext());
+            toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+            toast.setDuration(Toast.LENGTH_SHORT);
+            toast.setView(layout);
+            toast.show();
+        }
+    }
+
+    public double getPriceNow(double priceNow) {
+        return priceNow;
     }
 }

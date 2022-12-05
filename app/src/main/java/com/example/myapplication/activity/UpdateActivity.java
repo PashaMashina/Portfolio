@@ -12,7 +12,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.Volley;
 import com.example.myapplication.R;
+import com.example.myapplication.WhichUrl;
 import com.example.myapplication.db.MyDBHelper;
 
 public class UpdateActivity extends AppCompatActivity {
@@ -21,7 +24,9 @@ public class UpdateActivity extends AppCompatActivity {
     EditText titleUp, amountUp, costBuyUp;
     Button btnUpd, btnDel;
 
-    String id, title, amount, costBuy, costNow, profitFromBuy, sum, typeAsset;
+    boolean addOrUpd = false;
+
+    String title, typeAsset, amount, costBuy, costNow, profitFromBuy, sum, id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +51,8 @@ public class UpdateActivity extends AppCompatActivity {
                 title=titleUp.getText().toString().trim();
                 amount=amountUp.getText().toString().trim();
                 costBuy=costBuyUp.getText().toString().trim();
-                myDB.updateData(id, title, costBuy, amount);
+                //costNow = String.valueOf(AddActivityNext.doRequestToApi(typeAsset, WhichUrl.learnUrl(typeAsset, null), addOrUpd));
+                myDB.updateData(id, title, costBuy, amount, costNow.substring(0,costNow.indexOf(" ")));
                 Intent intent = new Intent(UpdateActivity.this, MainActivity.class);
                 startActivity(intent);
             }
@@ -82,7 +88,7 @@ public class UpdateActivity extends AppCompatActivity {
             //Setting
             titleUp.setText(title);
             amountUp.setText(amount);
-            costBuyUp.setText(costBuy);
+            costBuyUp.setText(costBuy.substring(0,costBuy.indexOf(" ")));
 
     }else{
         Toast.makeText(this, "No data", Toast.LENGTH_SHORT).show();

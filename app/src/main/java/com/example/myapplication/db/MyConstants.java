@@ -15,7 +15,7 @@ public class MyConstants {
 
     public static double ProfitFromBuy(double costBuy, double costNow){
         double profitFromBuy;
-            profitFromBuy = costBuy/(costNow - costBuy)*100;
+            profitFromBuy = Math.round(((costNow - costBuy)/costBuy*100) * 100.0) / 100.0;
         return profitFromBuy;
     }
 }

@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import androidx.annotation.Nullable;
 
-import com.example.myapplication.LearnPrice;
+
 
 public class MyDBHelper  extends SQLiteOpenHelper {
 
@@ -44,8 +44,6 @@ public class MyDBHelper  extends SQLiteOpenHelper {
     public void addAsset(String title, double costNow, double amount, String typeAsset){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
-        final double priceNow = LearnPrice.priceNow;
-        System.out.println(priceNow);
         cv.put(MyConstants.TITLE, title);
         cv.put(MyConstants.COST_NOW, costNow + " руб.");
         cv.put(MyConstants.COST_BUY, costNow + " руб.");
@@ -73,15 +71,15 @@ public class MyDBHelper  extends SQLiteOpenHelper {
         return cursor;
     }
 
-    public void updateData(String row_id, String title, String costBuy, String amount){
+    public void updateData(String row_id, String title, String costBuy, String amount, String costNow){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
 
         cv.put(MyConstants.TITLE, title);
         cv.put(MyConstants.COST_BUY, costBuy + " руб.");
         cv.put(MyConstants.AMOUNT, amount);
-        cv.put(MyConstants.PROFIT_FROM_BUY, MyConstants.ProfitFromBuy(Double.parseDouble(costBuy), 100));
-        cv.put(MyConstants.SUM, Double.parseDouble(costBuy) * Double.parseDouble(amount));
+        cv.put(MyConstants.PROFIT_FROM_BUY, MyConstants.ProfitFromBuy(Double.parseDouble(costBuy), Double.parseDouble(costNow))+ "%");
+        cv.put(MyConstants.SUM, (Double.parseDouble(costNow) * Double.parseDouble(amount))+ " руб.");
 
         long result = db.update(MyConstants.TABLE_NAME, cv, "id=?", new String[]{row_id});
 
